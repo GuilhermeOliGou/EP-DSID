@@ -62,7 +62,7 @@ public class Servidor implements Inter {
             for (int i = 0; i<100; i++){
                this.repositorio[i] = inv;
             }
-            this.nome = nm;
+            this.nomeR = nm;
          }
 
          public void insereNoRepositorio (Part t, int i){
@@ -81,7 +81,7 @@ public class Servidor implements Inter {
 
    public static void main(String[] args) {
       try {
-         PartRepository partRep0 = criaRepositorio0();
+         //PartRepository partRep0 = criaRepositorio0();
          Servidor server = new Servidor();
          Inter stub = (Inter) UnicastRemoteObject.exportObject(server, 0);
          Registry registry = LocateRegistry.getRegistry();
@@ -106,7 +106,7 @@ public class Servidor implements Inter {
       System.out.println("Executando troca1()");
        try {
          Part invalido1 = new Part (-2, "Part invalido", "Part usado para inicializar repositorio");
-         PartRepository repositorio1 = new PartRepository(invalido1);
+         PartRepository repositorio1 = new PartRepository(invalido1,"Repositorio1");
          Servidor server1 = new Servidor();
          Inter stub1 = (Inter) UnicastRemoteObject.exportObject(server1, 0);
          Registry registry1 = LocateRegistry.getRegistry();
@@ -122,7 +122,7 @@ public class Servidor implements Inter {
       System.out.println("Executando troca2()");
        try {
          Part invalido2 = new Part (-2, "Part invalido", "Part usado para inicializar repositorio");
-         PartRepository repositorio2 = new PartRepository(invalido2);
+         PartRepository repositorio2 = new PartRepository(invalido2, "Repositorio2");
          Servidor server2 = new Servidor();
          Inter stub2 = (Inter) UnicastRemoteObject.exportObject(server2, 0);
          Registry registry2 = LocateRegistry.getRegistry();
