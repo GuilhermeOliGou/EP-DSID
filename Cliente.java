@@ -1,6 +1,7 @@
 import java.util.Scanner;
 import java.rmi.registry.*;
 public class Cliente {
+   
    public static int comunica (){
       System.out.println("Possiveis comandos: ");
       System.out.println("1 - Bind - Servidor 1");
@@ -90,7 +91,7 @@ public class Cliente {
                Scanner ler3 = new Scanner(System.in);
                String desc;
                desc = ler3.nextLine();
-
+               
                String msg = stub.addp(n1, n4, nome, desc);
 
                System.out.println("Mensagem do Servidor: " + msg); 
