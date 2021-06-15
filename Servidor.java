@@ -10,6 +10,10 @@ public class Servidor implements Inter {
    static int contP1 = 0;
    static int contP2 = 0;
 
+   PartRepository repositorio0 = criaRepositorio();
+   PartRepository repositorio1 = criaRepositorio();
+   PartRepository repositorio2 = criaRepositorio();
+
    public static class Part{
       int id;
       String nome;
@@ -55,14 +59,12 @@ public class Servidor implements Inter {
    }
 
    public static class PartRepository{
-         String nomeR;
          Part [] repositorio = new Part [100];
 
-         public PartRepository (Part inv, String nm){
+         public PartRepository (Part inv){
             for (int i = 0; i<100; i++){
                this.repositorio[i] = inv;
             }
-            this.nomeR = nm;
          }
 
          public void insereNoRepositorio (Part t, int i){
@@ -81,7 +83,7 @@ public class Servidor implements Inter {
 
    public static void main(String[] args) {
       try {
-         //PartRepository partRep0 = criaRepositorio0();
+         PartRepository repositorio0 = criaRepositorio();
          Servidor server = new Servidor();
          Inter stub = (Inter) UnicastRemoteObject.exportObject(server, 0);
          Registry registry = LocateRegistry.getRegistry();
@@ -90,23 +92,9 @@ public class Servidor implements Inter {
       } catch (Exception ex) {
          ex.printStackTrace();
       }
-   }
 
-   public static PartRepository criaRepositorio0(String nome){
-      Part invalido = new Part (-2, "Part invalido", "Part usado para inicializar repositorio");
-      PartRepository repositorio0 = new PartRepository(invalido, nome);
-      return repositorio0;
-   }
-
-   public static PartRepository getRepositorio (PartRepository pR){
-      return pR;
-   }
-
-   public String troca1() throws RemoteException {
-      System.out.println("Executando troca1()");
-       try {
-         Part invalido1 = new Part (-2, "Part invalido", "Part usado para inicializar repositorio");
-         PartRepository repositorio1 = new PartRepository(invalido1,"Repositorio1");
+      try {
+         PartRepository repositorio1 = criaRepositorio();
          Servidor server1 = new Servidor();
          Inter stub1 = (Inter) UnicastRemoteObject.exportObject(server1, 0);
          Registry registry1 = LocateRegistry.getRegistry();
@@ -115,14 +103,9 @@ public class Servidor implements Inter {
       } catch (Exception ex) {
          ex.printStackTrace();
       }
-      return "Trocou para o Servidor 1";
-   }
 
-   public String troca2() throws RemoteException {
-      System.out.println("Executando troca2()");
-       try {
-         Part invalido2 = new Part (-2, "Part invalido", "Part usado para inicializar repositorio");
-         PartRepository repositorio2 = new PartRepository(invalido2, "Repositorio2");
+      try {
+         PartRepository repositorio2 = criaRepositorio();
          Servidor server2 = new Servidor();
          Inter stub2 = (Inter) UnicastRemoteObject.exportObject(server2, 0);
          Registry registry2 = LocateRegistry.getRegistry();
@@ -131,6 +114,22 @@ public class Servidor implements Inter {
       } catch (Exception ex) {
          ex.printStackTrace();
       }
+
+   }
+
+   public static PartRepository criaRepositorio(){
+      Part invalido = new Part (-2, "Part invalido", "Part usado para inicializar repositorio");
+      PartRepository repositorio = new PartRepository(invalido);
+      return repositorio;
+   }
+
+   public String troca1() throws RemoteException {
+      System.out.println("Executando troca1()");
+      return "Trocou para o Servidor 1";
+   }
+
+   public String troca2() throws RemoteException {
+      System.out.println("Executando troca2()");
       return "Trocou para o Servidor 2";
    }
 
@@ -140,6 +139,7 @@ public class Servidor implements Inter {
    }
    public String listp() throws RemoteException {
       System.out.println("Executando listp()");
+      //exibeRepositorio();
       return "Listp";
    }
    public String getp() throws RemoteException {
@@ -159,28 +159,39 @@ public class Servidor implements Inter {
       return "AddSubPart";
    }
 
-   public void inicializarServidores(String nomeRep){
-      PartRepository partRep0 = criaRepositorio0(nomeRep);
-   }
-
-   public String addp(int numServ, int idP, String nomeP, String descP) throws RemoteException {
+   public String addp (int numServ, int idP, String nomeP, String descP) throws RemoteException {
       Part p = new Part (idP, nomeP, descP);
-      if (numServ == 0){
-         String nomeRe0 = "Repositorio0";
-         //inicializarServidores(nomeRe0);
-         //PartRepository partRep0 = criaRepositorio0();
-         //PartRepository pR0 = getRepositorio(partRep0);
-         //pR0.insereNoRepositorio(p, contP0);
-         //contP0++;
+
+      if (numServ == 0){ 
+         repositorio0.insereNoRepositorio(p,contP0);
+         contP0++;
       }
+      if (numServ == 1){
+         repositorio1.insereNoRepositorio(p,contP1);
+         contP1++;
+      }
+      if (numServ == 2){
+         repositorio2.insereNoRepositorio(p,contP2);
+         contP2++;
+      } else{
+         return "ERRO - Escolha um repositorio existente (0, 1 ou 2)";
+      }
+
+      /*
+      repositorio0.exibeRepositorio();
+      repositorio1.exibeRepositorio();
+      repositorio2.exibeRepositorio();
+      */
+
       String r1 = "Part ";
       String r2 = p.nome;
       String r3 = " adicionada ao Servidor ";
       String r4 = String.valueOf(numServ);
       String rfinal = r1 + r2 + r3 + r4;
-      System.out.println("Executando addp()" + rfinal);
+      System.out.println("Executando addp() " + rfinal);
       return rfinal;
    }
+
    public String quit() throws RemoteException {
       System.out.println("Executando quit()");
       return "Quit";
