@@ -1,9 +1,9 @@
 import java.util.Scanner;
 import java.rmi.registry.*;
 public class Cliente {
-   
    public static int comunica (){
       System.out.println("Possiveis comandos: ");
+      System.out.println("0 - Bind - Servidor 0");
       System.out.println("1 - Bind - Servidor 1");
       System.out.println("2 - Bind - Servidor 2");
       System.out.println("3 - GetP");
@@ -25,37 +25,50 @@ public class Cliente {
       try {
          Registry registry = LocateRegistry.getRegistry(host);
          Inter stub = (Inter) registry.lookup("Alo");
-         int n = comunica();
+         
+         Registry registry1 = LocateRegistry.getRegistry(host);
+         Inter stub1;
+         //Inter stub1 = (Inter) registry1.lookup("Alo1");
 
+         Registry registry2 = LocateRegistry.getRegistry(host);
+         Inter stub2;
+         //Inter stub2 = (Inter) registry2.lookup("Alo2");
+
+         int n;
+         n = comunica();
+
+         int servConect = 0;
+        
          do{
-            if (n==1){
-               n=0;
-               String msg = stub.troca1();
+            if (n==0){
+               stub = (Inter) registry1.lookup("Alo");
+               String msg = stub.troca0();
                System.out.println("Mensagem do Servidor: " + msg); 
-               try {
-                  Registry registry1 = LocateRegistry.getRegistry(host);
-                  Inter stub1 = (Inter) registry1.lookup("Alo1");
-               } catch (Exception ex) {
-               ex.printStackTrace();
-               } 
                n = comunica();
-               n=0;
+               servConect = 0;
+            }   
+            if (n==1){
+               stub1 = (Inter) registry1.lookup("Alo1");
+               String msg = stub1.troca1();
+               System.out.println("Mensagem do Servidor: " + msg); 
+               n = comunica();
+               servConect = 1;
             }   
             if (n==2){
-               n=0;
-               String msg = stub.troca2();
+               stub2 = (Inter) registry2.lookup("Alo2");
+               String msg = stub2.troca2();
                System.out.println("Mensagem do Servidor: " + msg); 
-               try {
-                  Registry registry2 = LocateRegistry.getRegistry(host);
-                  Inter stub2 = (Inter) registry2.lookup("Alo2");
-               } catch (Exception ex) {
-               ex.printStackTrace();
-               } 
                n = comunica();
+               servConect = 2;
             }   
             if (n==3){
-               n=0;
-               String msg = stub.getp();
+               //Busca uma peca por codigo. A busca eh efetuada no repositorio corrente. Se encontrada,
+               //a peca passa a ser a nova peca corrente.
+               System.out.println("Qual o id da peca a ser buscada no repositorio corrente? (" + servConect + ")");
+               Scanner ler1 = new Scanner(System.in);
+               int idP = 0;
+               idP = ler1.nextInt();
+               String msg = stub.getp(servConect, idP);
                System.out.println("Mensagem do Servidor: " + msg); 
                n = comunica();
             }  
@@ -75,11 +88,7 @@ public class Cliente {
                n = comunica();
             }  
             if (n==7){
-               System.out.println("Em qual Servidor adicionar a Part? 0, 1 ou 2? ");
-               Scanner ler1 = new Scanner(System.in);
-               int n1 = 0;
-               n1 = ler1.nextInt();
-               System.out.println("Qual sera o ID da Part? ");
+               System.out.println("Qual sera o ID da Part a ser adicionada no repositorio corrente (" +servConect+")? ");
                Scanner ler4 = new Scanner(System.in);
                int n4 = 0;
                n4 = ler4.nextInt();
@@ -91,8 +100,8 @@ public class Cliente {
                Scanner ler3 = new Scanner(System.in);
                String desc;
                desc = ler3.nextLine();
-               
-               String msg = stub.addp(n1, n4, nome, desc);
+
+               String msg = stub.addp(n4, nome, desc, servConect);
 
                System.out.println("Mensagem do Servidor: " + msg); 
                n = comunica();
