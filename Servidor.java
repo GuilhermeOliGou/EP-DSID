@@ -10,6 +10,8 @@ public class Servidor implements Inter {
       this.repositorio = repositorio;
    }
 
+   static int erro = -1;
+
    static int contP0 = 0;
    static int contP1 = 0;
    static int contP2 = 0;
@@ -22,6 +24,7 @@ public class Servidor implements Inter {
       int id;
       String nome;
       String descricao;
+      int contSub = 0;
       //se tiver subPart, o id da primeira subPart fica na posicao 0 desse array
       int [] idSubParts = new int [20];
       //e a quantidade dessa sub part fica na posicao 0 nesse array
@@ -63,26 +66,36 @@ public class Servidor implements Inter {
    }
 
    public static class PartRepository{
-         Part [] repositorio = new Part [100];
+      Part [] repositorio = new Part [100];
 
-         public PartRepository (Part inv){
-            for (int i = 0; i<100; i++){
-               this.repositorio[i] = inv;
+      public PartRepository (Part inv){
+         for (int i = 0; i<100; i++){
+            this.repositorio[i] = inv;
+         }
+      }
+
+      public void insereNoRepositorio (Part t, int i){
+         this.repositorio[i] = t;
+      }
+
+      public void exibeRepositorio(){
+         System.out.println("Parts do repositorio: \n");
+         for (int i = 0; i<100; i++){
+            if (this.repositorio[i].id != -2){
+               System.out.println(this.repositorio[i].nome);
             }
          }
+      }
+   }
 
-         public void insereNoRepositorio (Part t, int i){
-            this.repositorio[i] = t;
+   public Part getPart(int idPart, PartRepository repositorioA){
+      for (int i = 0; i<100; i++){
+         if (repositorioA.repositorio[i].id == idPart){
+            return(repositorioA.repositorio[i]);
          }
-
-         public void exibeRepositorio(){
-            System.out.println("Parts do repositorio: \n");
-            for (int i = 0; i<100; i++){
-               if (this.repositorio[i].id != -2){
-                  System.out.println(this.repositorio[i].nome);
-               }
-            }
-         }
+      }
+      Part invalido = new Part (-3, "Part invalido", "Part usado para retornar false");
+      return invalido;
    }
 
    public static void main(String[] args) {
@@ -139,63 +152,249 @@ public class Servidor implements Inter {
       return "Trocou para o Servidor 2";
    }
 
-   public String bind() throws RemoteException {
-      System.out.println("Executando bind()");
-      return "Bind";
-   }
-   public String listp() throws RemoteException {
+   public String listp(int servConect) throws RemoteException {
       System.out.println("Executando listp()");
-      //exibeRepositorio();
-      return "Listp";
+      String resposta0 = "Pecas do repositorio 0: ";
+      String resposta1 = "Pecas do repositorio 1: ";
+      String resposta2 = "Pecas do repositorio 2: ";
+      if (servConect == 0){
+         for (int i = 0; i<100; i++){
+            if (repositorio0.repositorio[i].id != -2){
+               //System.out.println(repositorio0.repositorio[i].nome);
+               resposta0 += repositorio0.repositorio[i].nome;
+               resposta0 += " ";
+            }
+         }
+         return resposta0;
+      }
+      if (servConect == 1){
+         for (int i = 0; i<100; i++){
+            if (repositorio1.repositorio[i].id != -2){
+               //System.out.println(repositorio0.repositorio[i].nome);
+               resposta1 += repositorio1.repositorio[i].nome;
+               resposta1 += " ";
+            }
+         }
+         return resposta1;
+      }
+      if (servConect == 2){
+         for (int i = 0; i<100; i++){
+            if (repositorio2.repositorio[i].id != -2){
+               //System.out.println(repositorio0.repositorio[i].nome);
+               resposta2 += repositorio2.repositorio[i].nome;
+               resposta2 += " ";
+            }
+         }
+         return resposta2;
+      }
+      return "Ocorreu um erro";
    }
-   public String getp(int servConect, int idP) throws RemoteException {
+
+   public int getp(int servConect, int idP) throws RemoteException {
       System.out.println("Executando getp()");
       if (servConect == 0){
          for (int i = 0; i<100; i++){
             if (repositorio0.repositorio[i].id == idP){
-               return "Peca " + repositorio0.repositorio[i].nome +" encontrada no repositorio 0";
-            }
-            else{
-               return "Peca nao encontrada no repositorio 0";
+               System.out.println("Achou - Servidor 0");
+               return repositorio0.repositorio[i].id;
             }
          }
       }
       if (servConect == 1){
          for (int i = 0; i<100; i++){
             if (repositorio1.repositorio[i].id == idP){
-               return "Peca " + repositorio1.repositorio[i].nome +" encontrada no repositorio 1";
-            }
-            else{
-               return "Peca nao encontrada no repositorio 1";
+               System.out.println("Achou - Servidor 1");
+               return repositorio1.repositorio[i].id;
             }
          }
       }
       if (servConect == 2){
          for (int i = 0; i<100; i++){
             if (repositorio2.repositorio[i].id == idP){
-               return "Peca " + repositorio2.repositorio[i].nome +" encontrada no repositorio 2";
+               System.out.println("Achou - Servidor 2");
+               return repositorio2.repositorio[i].id;
             }
-            else{
-               return "Peca nao encontrada no repositorio 2";
+         }
+      }
+      return erro;
+   }
+
+   public String showp(int idP, int servConect) throws RemoteException {
+      System.out.println("Executando showp()");
+      String resp;
+      int idPeca;
+      String nomePeca;
+      String descPeca;
+      String subPart;
+
+      if (servConect == 0){
+         for (int i = 0; i<100; i++){
+            if (repositorio0.repositorio[i].id == idP){
+               idPeca = repositorio0.repositorio[i].id;
+               nomePeca = repositorio0.repositorio[i].nome;
+               descPeca = repositorio0.repositorio[i].descricao;
+               if(repositorio0.repositorio[i].quant[0] == -1){
+                  subPart = " e nao possui subPart";
+               } else {
+                  subPart = " e possui as subParts de id: ";
+                  for (int j = 0; j<20; j++){
+                     if(repositorio0.repositorio[i].idSubParts[j] != -1){ 
+                        subPart += repositorio0.repositorio[i].idSubParts[j];
+                        subPart += " ";
+                     }  
+                  }
+               }
+               resp = "id da Peca: "+idPeca+" nome : "+nomePeca+" descricao: "+descPeca+subPart;
+               return resp;
+            }
+         }
+      }
+      if (servConect == 1){
+         for (int i = 0; i<100; i++){
+            if (repositorio1.repositorio[i].id == idP){
+               idPeca = repositorio1.repositorio[i].id;
+               nomePeca = repositorio1.repositorio[i].nome;
+               descPeca = repositorio1.repositorio[i].descricao;
+               if(repositorio0.repositorio[i].quant[0] == -1){
+                  subPart = " e nao possui subPart";
+               } else {
+                  subPart = " e possui as subParts de id: ";
+                  for (int j = 0; j<20; j++){
+                     if(repositorio1.repositorio[i].idSubParts[j] != -1){ 
+                        subPart += repositorio1.repositorio[i].idSubParts[j];
+                        subPart += " ";
+                     }  
+                  }
+               }
+               resp = "id da Peca: "+idPeca+" nome : "+nomePeca+" descricao: "+descPeca+subPart;
+               return resp;
+            }
+         }
+      }
+      if (servConect == 2){
+         for (int i = 0; i<100; i++){
+            if (repositorio2.repositorio[i].id == idP){
+               idPeca = repositorio2.repositorio[i].id;
+               nomePeca = repositorio2.repositorio[i].nome;
+               descPeca = repositorio2.repositorio[i].descricao;
+               if(repositorio0.repositorio[i].quant[0] == -1){
+                  subPart = " e nao possui subPart";
+               } else {
+                  subPart = " e possui as subParts de id: ";
+                  for (int j = 0; j<20; j++){
+                     if(repositorio2.repositorio[i].idSubParts[j] != -1){ 
+                        subPart += repositorio2.repositorio[i].idSubParts[j];
+                        subPart += " ";
+                     }  
+                  }
+               }
+               resp = "id da Peca: "+idPeca+" nome : "+nomePeca+" descricao: "+descPeca+subPart;
+               return resp;
             }
          }
       }
       return "Ocorreu um erro";
    }
-   public String showp() throws RemoteException {
-      System.out.println("Executando showp()");
-      return "Showp";
-   }
-   public String clearlist() throws RemoteException {
+
+   public String clearlist(int idP, int servConect) throws RemoteException {
       System.out.println("Executando clearlist()");
-      return "ClearList";
+      if (idP == -1) return "Part corrente invalida :/ Primeiro busque uma Part valida com a funcao 3 (GetP)";
+      if (servConect == 0){
+         Part pRef = getPart(idP, repositorio0);
+         for (int j = 0; j<20; j++){
+            pRef.idSubParts[j] = -1;
+            pRef.quant[j] = -1;
+            return "Lista de SubParts da Peca corrente limpa";
+         }
+      }
+      if (servConect == 1){
+         Part pRef = getPart(idP, repositorio1);
+         for (int j = 0; j<20; j++){
+            pRef.idSubParts[j] = -1;
+            pRef.quant[j] = -1;
+            return "Lista de SubParts da Peca corrente limpa";
+         }
+      }
+      if (servConect == 2){
+         Part pRef = getPart(idP, repositorio2);
+         for (int j = 0; j<20; j++){
+            pRef.idSubParts[j] = -1;
+            pRef.quant[j] = -1;
+            return "Lista de SubParts da Peca corrente limpa";
+         }
+      }
+      return "Ocorreu um erro";
    }
-   public String addsubpart() throws RemoteException {
+
+   public String addsubpart(int idP, int servConect, int nIdSub, String nomeSub, String descSub, int quantSub) throws RemoteException {
       System.out.println("Executando addsubpart()");
-      return "AddSubPart";
+      if (idP == -1) return "Part corrente invalida :/ Primeiro busque uma Part valida com a funcao 3 (GetP)";
+      Part subP = new Part (nIdSub, nomeSub, descSub);
+      if (servConect == 0){
+         Part pRef = getPart(idP, repositorio0);
+         for (int j = 0; j<20; j++){
+            if (pRef.idSubParts[j] == nIdSub) return "Ja existe uma subPart nessa peca com esse id :/";
+         }
+         for (int i = 0; i<100; i++){
+            if (repositorio0.repositorio[i].id == idP){
+               insereSubPart (pRef, nIdSub, quantSub, pRef.contSub);
+               pRef.contSub ++;
+            }
+            return "SubPart(s) adicionada(s) a peca corrente :)";
+         }
+      }
+      if (servConect == 1){
+         Part pRef = getPart(idP, repositorio1);
+         for (int j = 0; j<20; j++){
+            if (pRef.idSubParts[j] == nIdSub) return "Ja existe uma subPart nessa peca com esse id :/";
+         }
+         for (int i = 0; i<100; i++){
+            if (repositorio1.repositorio[i].id == idP){
+               insereSubPart (pRef, nIdSub, quantSub, pRef.contSub);
+               pRef.contSub ++;
+            }
+            return "SubPart(s) adicionada(s) a peca corrente :)";
+         }
+      }
+      if (servConect == 2){
+         Part pRef = getPart(idP, repositorio2);
+         for (int j = 0; j<20; j++){
+            if (pRef.idSubParts[j] == nIdSub) return "Ja existe uma subPart nessa peca com esse id :/";
+         }
+         for (int i = 0; i<100; i++){
+            if (repositorio2.repositorio[i].id == idP){
+               insereSubPart (pRef, nIdSub, quantSub, pRef.contSub);
+               pRef.contSub ++;
+            }
+            return "SubPart(s) adicionada(s) a peca corrente :)";
+         }
+      }
+      return "Ocorreu um erro";
    }
 
    public String addp (int idP, String nomeP, String descP, int servConect) throws RemoteException {
+      if (servConect == 0){
+         for (int i = 0; i<100; i++){
+            if (repositorio0.repositorio[i].id == idP){
+               return "Esse id ja existe para uma peca desse repositorio :/";
+            }
+         }
+      }  
+      if (servConect == 1){
+         for (int i = 0; i<100; i++){
+            if (repositorio1.repositorio[i].id == idP){
+               return "Esse id ja existe para uma peca desse repositorio :/";
+            }
+         }
+      }  
+      if (servConect == 2){
+         for (int i = 0; i<100; i++){
+            if (repositorio2.repositorio[i].id == idP){
+               return "Esse id ja existe para uma peca desse repositorio :/";
+            }
+         }
+      }   
+
       Part p = new Part (idP, nomeP, descP);
 
       //System.out.println(numServ);
