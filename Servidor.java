@@ -162,34 +162,44 @@ public class Servidor implements Inter {
    public String addp (int numServ, int idP, String nomeP, String descP) throws RemoteException {
       Part p = new Part (idP, nomeP, descP);
 
+      //System.out.println(numServ);
+      boolean execOk = false;
+
       if (numServ == 0){ 
          repositorio0.insereNoRepositorio(p,contP0);
+         //System.out.println("Entrou no 0");
          contP0++;
+         execOk = true;
       }
       if (numServ == 1){
          repositorio1.insereNoRepositorio(p,contP1);
+         //System.out.println("Entrou no 1");
          contP1++;
+         execOk = true;
       }
       if (numServ == 2){
          repositorio2.insereNoRepositorio(p,contP2);
+         //System.out.println("Entrou no 2");
          contP2++;
-      } else{
-         return "ERRO - Escolha um repositorio existente (0, 1 ou 2)";
-      }
+         execOk = true;
+      } 
 
       /*
       repositorio0.exibeRepositorio();
       repositorio1.exibeRepositorio();
       repositorio2.exibeRepositorio();
       */
-
-      String r1 = "Part ";
-      String r2 = p.nome;
-      String r3 = " adicionada ao Servidor ";
-      String r4 = String.valueOf(numServ);
-      String rfinal = r1 + r2 + r3 + r4;
-      System.out.println("Executando addp() " + rfinal);
-      return rfinal;
+      if (execOk == true){
+         String r1 = "Part ";
+         String r2 = p.nome;
+         String r3 = " adicionada ao Servidor ";
+         String r4 = String.valueOf(numServ);
+         String rfinal = r1 + r2 + r3 + r4;
+         System.out.println("Executando addp() " + rfinal);
+         return rfinal;
+      } else{
+         return "Ocorreu um erro";
+      }   
    }
 
    public String quit() throws RemoteException {
