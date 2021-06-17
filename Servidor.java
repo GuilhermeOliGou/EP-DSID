@@ -4,15 +4,19 @@ import java.rmi.registry.*;
  
 public class Servidor implements Inter {
 
-   public Servidor() {}
+   PartRepository repositorio;
+
+   public Servidor(PartRepository repositorio) {
+      this.repositorio = repositorio;
+   }
 
    static int contP0 = 0;
    static int contP1 = 0;
    static int contP2 = 0;
 
-   PartRepository repositorio0 = criaRepositorio();
-   PartRepository repositorio1 = criaRepositorio();
-   PartRepository repositorio2 = criaRepositorio();
+   static PartRepository repositorio0 = criaRepositorio();
+   static PartRepository repositorio1 = criaRepositorio();
+   static PartRepository repositorio2 = criaRepositorio();
 
    public static class Part{
       int id;
@@ -83,8 +87,7 @@ public class Servidor implements Inter {
 
    public static void main(String[] args) {
       try {
-         PartRepository repositorio0 = criaRepositorio();
-         Servidor server = new Servidor();
+         Servidor server = new Servidor(repositorio0);
          Inter stub = (Inter) UnicastRemoteObject.exportObject(server, 0);
          Registry registry = LocateRegistry.getRegistry();
          registry.bind("Alo", stub);
@@ -94,8 +97,7 @@ public class Servidor implements Inter {
       }
 
       try {
-         PartRepository repositorio1 = criaRepositorio();
-         Servidor server1 = new Servidor();
+         Servidor server1 = new Servidor(repositorio1);
          Inter stub1 = (Inter) UnicastRemoteObject.exportObject(server1, 0);
          Registry registry1 = LocateRegistry.getRegistry();
          registry1.bind("Alo1", stub1);
@@ -105,8 +107,7 @@ public class Servidor implements Inter {
       }
 
       try {
-         PartRepository repositorio2 = criaRepositorio();
-         Servidor server2 = new Servidor();
+         Servidor server2 = new Servidor(repositorio2);
          Inter stub2 = (Inter) UnicastRemoteObject.exportObject(server2, 0);
          Registry registry2 = LocateRegistry.getRegistry();
          registry2.bind("Alo2", stub2);
@@ -121,6 +122,11 @@ public class Servidor implements Inter {
       Part invalido = new Part (-2, "Part invalido", "Part usado para inicializar repositorio");
       PartRepository repositorio = new PartRepository(invalido);
       return repositorio;
+   }
+
+   public String troca0() throws RemoteException {
+      System.out.println("Executando troca0()");
+      return "Trocou para o Servidor 0";
    }
 
    public String troca1() throws RemoteException {
@@ -142,9 +148,39 @@ public class Servidor implements Inter {
       //exibeRepositorio();
       return "Listp";
    }
-   public String getp() throws RemoteException {
+   public String getp(int servConect, int idP) throws RemoteException {
       System.out.println("Executando getp()");
-      return "Getp";
+      if (servConect == 0){
+         for (int i = 0; i<100; i++){
+            if (repositorio0.repositorio[i].id == idP){
+               return "Peca " + repositorio0.repositorio[i].nome +" encontrada no repositorio 0";
+            }
+            else{
+               return "Peca nao encontrada no repositorio 0";
+            }
+         }
+      }
+      if (servConect == 1){
+         for (int i = 0; i<100; i++){
+            if (repositorio1.repositorio[i].id == idP){
+               return "Peca " + repositorio1.repositorio[i].nome +" encontrada no repositorio 1";
+            }
+            else{
+               return "Peca nao encontrada no repositorio 1";
+            }
+         }
+      }
+      if (servConect == 2){
+         for (int i = 0; i<100; i++){
+            if (repositorio2.repositorio[i].id == idP){
+               return "Peca " + repositorio2.repositorio[i].nome +" encontrada no repositorio 2";
+            }
+            else{
+               return "Peca nao encontrada no repositorio 2";
+            }
+         }
+      }
+      return "Ocorreu um erro";
    }
    public String showp() throws RemoteException {
       System.out.println("Executando showp()");
@@ -159,25 +195,25 @@ public class Servidor implements Inter {
       return "AddSubPart";
    }
 
-   public String addp (int numServ, int idP, String nomeP, String descP) throws RemoteException {
+   public String addp (int idP, String nomeP, String descP, int servConect) throws RemoteException {
       Part p = new Part (idP, nomeP, descP);
 
       //System.out.println(numServ);
       boolean execOk = false;
 
-      if (numServ == 0){ 
+      if (servConect == 0){ 
          repositorio0.insereNoRepositorio(p,contP0);
          //System.out.println("Entrou no 0");
          contP0++;
          execOk = true;
       }
-      if (numServ == 1){
+      if (servConect == 1){
          repositorio1.insereNoRepositorio(p,contP1);
          //System.out.println("Entrou no 1");
          contP1++;
          execOk = true;
       }
-      if (numServ == 2){
+      if (servConect == 2){
          repositorio2.insereNoRepositorio(p,contP2);
          //System.out.println("Entrou no 2");
          contP2++;
@@ -193,7 +229,7 @@ public class Servidor implements Inter {
          String r1 = "Part ";
          String r2 = p.nome;
          String r3 = " adicionada ao Servidor ";
-         String r4 = String.valueOf(numServ);
+         String r4 = String.valueOf(servConect);
          String rfinal = r1 + r2 + r3 + r4;
          System.out.println("Executando addp() " + rfinal);
          return rfinal;
