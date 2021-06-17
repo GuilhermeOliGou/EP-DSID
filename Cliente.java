@@ -3,16 +3,16 @@ import java.rmi.registry.*;
 public class Cliente {
    public static int comunica (){
       System.out.println("Possiveis comandos: ");
-      System.out.println("0 - Bind - Servidor 0");
-      System.out.println("1 - Bind - Servidor 1");
-      System.out.println("2 - Bind - Servidor 2");
-      System.out.println("3 - GetP");
-      System.out.println("4 - ShowP");
+      System.out.println("0 - Bind - Servidor 0"); //ok
+      System.out.println("1 - Bind - Servidor 1"); //ok
+      System.out.println("2 - Bind - Servidor 2"); //ok
+      System.out.println("3 - GetP"); //ok
+      System.out.println("4 - ShowP"); //ok
       System.out.println("5 - ClearList");
-      System.out.println("6 - AddSubPart");
-      System.out.println("7 - AddP");
-      System.out.println("8 - listP");
-      System.out.println("9 - Quit");
+      System.out.println("6 - AddSubPart"); //ok
+      System.out.println("7 - AddP"); //ok
+      System.out.println("8 - listP"); //ok
+      System.out.println("9 - Quit"); //ok
       System.out.print("Digite a opcao desejada ");
       Scanner ler = new Scanner(System.in);
       int n = 0;
@@ -38,6 +38,7 @@ public class Cliente {
          n = comunica();
 
          int servConect = 0;
+         int idPcorrente = -1;
         
          do{
             if (n==0){
@@ -68,22 +69,44 @@ public class Cliente {
                Scanner ler1 = new Scanner(System.in);
                int idP = 0;
                idP = ler1.nextInt();
-               String msg = stub.getp(servConect, idP);
-               System.out.println("Mensagem do Servidor: " + msg); 
+               int msg = stub.getp(servConect, idP);
+               idPcorrente = msg;
+               if (msg == -1){
+                  System.out.println("Peca nao encontrada no repositorio :/");
+               } else{
+                  System.out.println("Peca encontrada! :)");
+               } 
                n = comunica();
             }  
             if (n==4){
-               String msg = stub.showp();
+               String msg = stub.showp(idPcorrente, servConect);
                System.out.println("Mensagem do Servidor: " + msg); 
                n = comunica();
             }  
             if (n==5){
-               String msg = stub.clearlist();
+               String msg = stub.clearlist(idPcorrente, servConect);
                System.out.println("Mensagem do Servidor: " + msg); 
                n = comunica();
             }  
             if (n==6){
-               String msg = stub.addsubpart();
+               System.out.println("Qual sera o ID da SubPart a ser adicionada na Part corrente (" +idPcorrente+")? ");
+               Scanner ler1 = new Scanner(System.in);
+               int nIdSub = 0;
+               nIdSub = ler1.nextInt();
+               System.out.println("Qual o nome da SubPart? ");
+               Scanner ler2 = new Scanner(System.in);
+               String nome;
+               nome = ler2.nextLine();
+               System.out.println("Qual a descricao da SubPart? ");
+               Scanner ler3 = new Scanner(System.in);
+               String desc;
+               desc = ler3.nextLine();
+               System.out.println("Qual a quantidade da SubParts a serem adicionadas na Part corrente? ");
+               Scanner ler4 = new Scanner(System.in);
+               int quantSub;
+               quantSub = ler4.nextInt();
+
+               String msg = stub.addsubpart(idPcorrente, servConect, nIdSub, nome, desc, quantSub);
                System.out.println("Mensagem do Servidor: " + msg); 
                n = comunica();
             }  
@@ -107,7 +130,8 @@ public class Cliente {
                n = comunica();
             } 
             if (n==8){
-               String msg = stub.listp();
+               //Lista pecas do repositorio corrente
+               String msg = stub.listp(servConect);
                System.out.println("Mensagem do Servidor: " + msg); 
                n = comunica();
             } 
