@@ -10,6 +10,10 @@ public class Servidor implements Inter {
    static int contP1 = 0;
    static int contP2 = 0;
 
+   PartRepository repositorio0 = criaRepositorio();
+   PartRepository repositorio1 = criaRepositorio();
+   PartRepository repositorio2 = criaRepositorio();
+
    public static class Part{
       int id;
       String nome;
@@ -135,6 +139,7 @@ public class Servidor implements Inter {
    }
    public String listp() throws RemoteException {
       System.out.println("Executando listp()");
+      //exibeRepositorio();
       return "Listp";
    }
    public String getp() throws RemoteException {
@@ -156,7 +161,8 @@ public class Servidor implements Inter {
 
    public String addp (int numServ, int idP, String nomeP, String descP) throws RemoteException {
       Part p = new Part (idP, nomeP, descP);
-      if (numServ == 0){
+
+      if (numServ == 0){ 
          repositorio0.insereNoRepositorio(p,contP0);
          contP0++;
       }
@@ -167,7 +173,16 @@ public class Servidor implements Inter {
       if (numServ == 2){
          repositorio2.insereNoRepositorio(p,contP2);
          contP2++;
+      } else{
+         return "ERRO - Escolha um repositorio existente (0, 1 ou 2)";
       }
+
+      /*
+      repositorio0.exibeRepositorio();
+      repositorio1.exibeRepositorio();
+      repositorio2.exibeRepositorio();
+      */
+
       String r1 = "Part ";
       String r2 = p.nome;
       String r3 = " adicionada ao Servidor ";
@@ -176,6 +191,7 @@ public class Servidor implements Inter {
       System.out.println("Executando addp() " + rfinal);
       return rfinal;
    }
+
    public String quit() throws RemoteException {
       System.out.println("Executando quit()");
       return "Quit";
